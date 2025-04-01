@@ -8,18 +8,7 @@ csv_url = "https://raw.githubusercontent.com/keanyaoha/Final_Project_WBS/main/em
 # Load DataFrame from GitHub
 df = pd.read_csv(csv_url)
 
-# GitHub raw CSV URL (replace with your actual link)
-#csv_url_1 = "https://raw.githubusercontent.com/keanyaoha/Final_Project_WBS/main/per_capita_filtered.csv"
-
-# Load DataFrame from GitHub
-#df_1 = pd.read_csv(csv_url_1)
-
 print("Dataset Loaded Successfully")
-
-# per_capita_Country = per_capita_filtered.loc[per_capita_filtered["Country"] == {country}, "PerCapitaCO2"].item()
-#per_capita_EU_27 = per_capita_filtered.loc[per_capita_filtered["Country"] == "European Union (27)", "PerCapitaCO2"].item()
-#per_capita_World = per_capita_filtered.loc[per_capita_filtered["Country"] == "World", "PerCapitaCO2"].item()
-
 
 def format_activity_name(activity):
     activity_mappings = {
@@ -116,10 +105,7 @@ if country:
             # Calculate total emission after clicking "Calculate"
             total_emission = sum(st.session_state.emission_values.values())
             st.subheader(f"Your Carbon Footprint is: {total_emission:.4f}")
-            # st.subheader(f"Per Capita Emission for {country} is: {per_capita_Country} kgCO2 equivalent")
-           # st.subheader(f"Per Capita Emission for European Union (27) is: {per_capita_EU_27} kgCO2 equivalent")
-            #st.subheader(f"Per Capita Emission for World is: {per_capita_World} kgCO2 equivalent")
-
+            
 
 else:
     st.warning("Please select a country.")
