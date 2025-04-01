@@ -1,83 +1,107 @@
-%%writefile app.py
-
-import streamlit as st
-
-# Title
-st.title("Carbon FootPrint Calculator")
-
-# Markdown
-st.markdown("""
-Show that you care about the Environment. Calculate your carbon footprint and get the ball rolling towards offsetting them. 
-""")
-
-# List of 25 categorical activities
-activities = ["km_domestic_flight_traveled",
-"km_international_flight_traveled",
-"km_diesel_local_passenger_train_traveled",
-"km_diesel_long_distance_passenger_train_traveled",
-"km_electric_passenger_train_traveled",
-"km_bus_traveled",
-"km_petrol_car_traveled",
-"km_Motorcycle_traveled",
-"km_ev_scooter_traveled",
-"km_ev_car_traveled",
-"diesel_car_traveled",
-"water_consumed",
-"electricity_used",
-"beef_products_consumed",
-"beverages_consumed",
-"poultry_products_consumed",
-"pork_products_consumed",
-"processed_rice_consumed",
-"sugar_consumed",
-"vegetable_oils_fats_consumed",
-"other_meat_products_consumed",
-"dairy_products_consumed",
-"fish_products_consumed",
-"other_food_products_consumed",
-"hotel_stay"]
-
-csv_url = "https://raw.githubusercontent.com/keanyaoha/Final_Project_WBS/main/emission_factor_formated.csv"
-emission_factor_formated = pd.read_csv(csv_url, index_col=0)
-# User selects a country
-available_countries = emission_factor_formated.columns[0:].tolist()  # Exclude 'Activity' column
-
-
-# Streamlit dropdown
-dropdown_value = st.selectbox("Select your country:", available_countries )
-st.write(f"You selected: {dropdown_value}")
-
-import streamlit as st
 import pandas as pd
+import streamlit as st
+print("Libraries Imported Successfully")
 
+df = pd.read_csv("C:/Users/Lenovo/Desktop/Data Science course/Project/Final Project/Emission factors/emission_factor_formated.csv")
+print("Dataset Loaded Successfully")
 
-# Extract available countries
-available_countries = emission_factor_formated.index.tolist()
+def format_activity_name(activity):
+    activity_mappings = {
+        "Domestic flight": "How many KM of Domestic Flights taken per year",
+        "International flight": "How many KM of International Flights taken per year",
+        "km_diesel_local_passenger_train_traveled": "What distance in KM have you traveled by diesel-powered local passenger trains per year",
+        "km_diesel_long_distance_passenger_train_traveled": "What distance in KM have you traveled by diesel-powered long-distant passenger trains per year",
+        "km_electric_passenger_train_traveled": "What distance in KM have you traveled by electric-powered passenger trains per year",
+        "km_bus_traveled": "What distance in KM have you traveled by bus per year",
+        "km_petrol_car_traveled": "What distance in KM have you traveled by petrol-powered car per year",
+        "km_Motorcycle_traveled": "What distance in KM have you traveled by motorcycle per year",
+        "km_ev_scooter_traveled": "What distance in KM have you traveled by electric scooter per year",
+        "km_ev_car_traveled": "What distance in KM have you traveled by electric-powered car per year",
+        "diesel_car_traveled": "What distance in KM have you traveled by diesel-powered car per year",
+        "water_consumed": "How much water have you consumed in liters per year",
+        "electricity_used": "How much electricity have you used in kWh per year",
+        "beef_products_consumed": "How much beef have you consumed in Kg per year",
+        "beverages_consumed": "How much beverages have you consumed in liters per year",
+        "poultry_products_consumed": "How much poultry have you consumed in Kg per year",
+        "pork_products_consumed": "How much pork have you consumed in Kg per year",
+        "processed_rice_consumed": "How much processed rice have you consumed in Kg per year",
+        "sugar_consumed": "How much sugar have you consumed in Kg per year",
+        "vegetable_oils_fats_consumed": "How much vegetable oils and fats have you consumed in Kg per year",
+        "other_meat_products_consumed":  "How much other meat products have you consumed in Kg per year",
+        "dairy_products_consumed": "How much dairy products have you consumed in Kg per year",
+        "fish_products_consumed": "How much fish products have you consumed in Kg per year",
+        "other_food_products_consumed": "How much other food products have you consumed in Kg per year",
+        "hotel_stay": "How many nights have you stayed in a hotel per year"
+    }
+    return activity_mappings.get(activity, activity.replace("_", " ").capitalize())
 
-# Streamlit dropdown for country selection
-country = st.selectbox("Select a country:", available_countries)
+print("Formating Done Successfully")
+
+# Streamlit UI to collect name and gender
+st.title("Carbon Footprint Calculator")
+
+# Display an image
+st.image('carbon_image.jpg', use_column_width=True)
+
+# Collect name and gender
+identity = st.text_input("Type your Champ:")
+mood = st.selectbox("Select your mood:", ["is am Happy", "is am Slightly happy"])
+print("identity and Mood Created Successfully")
+
+# Check if mood are entered
+if not identity or not mood:
+    st.warning("Please enter your identity and select your mood before proceeding.")
+else:
+    # Display message based on identity 
+    st.write(f"Welcome {identity}! Let's calculate your Carbon Footprint.")
+
+# Initialize session state for tracking which activity to show
+if "current_activity_start" not in st.session_state:
+    st.session_state.current_activity_start = 0  # Start with the first activity
+    st.session_state.emission_values = {}  # Store input values for each activity
+
+# Number of activities to show per page
+activities_per_page = 5
+
+# Extract country names (all columns except 'Activity')
+country_list = df.columns[1:].tolist()
+
+# Select country
+country = st.selectbox("Select a country:", country_list)
+print("Country Selected Successfully")
 
 if country:
-    st.write(f"You selected: {country}")
-    
-    # Example activity names (Replace with actual ones)
-    activities = emission_factor_formated.columns.tolist()
-    numbers = []
-    
-    # Get user inputs for each activity
-    for activity in activities:
-        value = st.number_input(f"Enter value for {activity}:", min_value=0.0, step=0.1)
-        numbers.append(value)
-    
-    # Calculate total emissions
-    total = sum(num * factor for num, factor in zip(numbers, emission_factor_formated.loc[country]))
-    st.write(f"Total emissions: {total}")
+    # Get the current set of activities to show
+    activities = df['Activity'].tolist()
+    activities_to_display = activities[st.session_state.current_activity_start: st.session_state.current_activity_start + activities_per_page]
 
-per_capita_EU_27 = per_capita_filtered.loc[per_capita_filtered["Country"] == "European Union (27)", "PerCapitaCO2"].item()
-per_capita_World = per_capita_filtered.loc[per_capita_filtered["Country"] == "World", "PerCapitaCO2"].item()
+    # Display the activities
+    for activity in activities_to_display:
+        activity_row = df[df['Activity'] == activity]
+        activity_description = format_activity_name(activity)
+        factor = activity_row[country].values[0]
+        
+        # Get user input for the current activity
+        user_input = st.number_input(f"{activity_description}", min_value=0, step=1, key=activity)
 
-# Display results
-print(f"Your carbon footprint is: {total} kgCO2 equivalent")
+        # Store the input value for later use
+        st.session_state.emission_values[activity] = user_input * factor
 
-print(f"Per Capita Emission for European Union (27) is: {per_capita_EU_27} kgCO2 equivalent")
-print(f"Per Capita Emission for World is: {per_capita_World} kgCO2 equivalent")
+    # Show "Next" button if there are more activities to show
+    if st.session_state.current_activity_start + activities_per_page < len(activities):
+        next_button = st.button("Next")
+        if next_button:
+            st.session_state.current_activity_start += activities_per_page  # Move to the next set of activities
+
+    # If we have shown all activities, display the "Calculate" button
+    if st.session_state.current_activity_start + activities_per_page >= len(activities):
+        calculate_button = st.button("Calculate")
+        if calculate_button:
+            # Calculate total emission after clicking "Calculate"
+            total_emission = sum(st.session_state.emission_values.values())
+            st.subheader(f"Total emission for {country}: {total_emission:.4f}")
+
+else:
+    st.warning("Please select a country.")
+
+print("Completed!")
