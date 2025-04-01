@@ -122,12 +122,12 @@ if country:
             eud_avg_emission = df1.loc[df1["Country"] == "European Union (27)", "PerCapitaCO2"].values[0]
             wd_avg_emission = df1.loc[df1["Country"] == "World", "PerCapitaCO2"].values[0]
 
-            # Display additional outputs
-            st.subheader(f"Average emission for {country}: {country_avg_emission:.4f}")
-            st.subheader(f"Average emission for Eureopean Union (27): {eud_avg_emission:.4f}")
-            st.subheader(f"Average emission for World: {wd_avg_emission:.4f}")
-
+    
 else:
     st.warning("Please select a country.")
+# Display additional outputs
+st.subheader(f"Average emission for {country}: {country_avg_emission:.4f}")
+st.subheader(f"Average emission for Eureopean Union (27): {eud_avg_emission:.4f}")
+st.subheader(f"Average emission for World: {wd_avg_emission:.4f}")
 
 print("Completed!")
