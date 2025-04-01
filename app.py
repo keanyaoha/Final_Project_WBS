@@ -108,8 +108,8 @@ if country:
             total_emission = sum(st.session_state.emission_values.values())
             st.subheader(f"Your Carbon Footprint is: {total_emission:.4f}")
             
-            st.subheader(f"Per Capita Emission for European Union (27) is: {per_capita_EU_27} kgCO2 equivalent")
-            st.subheader(f"Per Capita Emission for World is: {per_capita_World} kgCO2 equivalent")
+st.subheader(f"Per Capita Emission for European Union (27) is: {per_capita_EU_27} kgCO2 equivalent")
+st.subheader(f"Per Capita Emission for World is: {per_capita_World} kgCO2 equivalent")
 else:
     st.warning("Please select a country.")
 
