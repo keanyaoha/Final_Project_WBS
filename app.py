@@ -2,7 +2,8 @@ import pandas as pd
 import streamlit as st
 print("Libraries Imported Successfully")
 
-df = pd.read_csv("C:\Users\Lenovo\Desktop\emission_factor_formated.csv")
+df = pd.read_csv("C:/Users/Lenovo/Desktop/emission_factor_formated.csv")
+
 print("Dataset Loaded Successfully")
 
 def format_activity_name(activity):
