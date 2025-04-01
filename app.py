@@ -37,6 +37,8 @@ activities = ["km_domestic_flight_traveled",
 "other_food_products_consumed",
 "hotel_stay"]
 
+csv_url = "https://raw.githubusercontent.com/keanyaoha/Final_Project_WBS/main/emission_factor_formated.csv"
+emission_factor_formated = pd.read_csv(csv_url, index_col=0)
 # User selects a country
 available_countries = emission_factor_formated.columns[0:].tolist()  # Exclude 'Activity' column
 
