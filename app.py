@@ -9,6 +9,8 @@ csv_url = "https://raw.githubusercontent.com/keanyaoha/Final_Project_WBS/main/em
 df = pd.read_csv(csv_url)
 
 print("Dataset Loaded Successfully")
+per_capita_EU_27 = emission_factor_formated.loc["per_capita", "European Union (27)"]
+per_capita_World = emission_factor_formated.loc["per_capita", "World"]
 
 def format_activity_name(activity):
     activity_mappings = {
@@ -106,7 +108,8 @@ if country:
             total_emission = sum(st.session_state.emission_values.values())
             st.subheader(f"Your Carbon Footprint is: {total_emission:.4f}")
             
-
+            st.subheader(f"Per Capita Emission for European Union (27) is: {per_capita_EU_27} kgCO2 equivalent")
+            st.subheader(f"Per Capita Emission for World is: {per_capita_World} kgCO2 equivalent")
 else:
     st.warning("Please select a country.")
 
