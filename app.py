@@ -1,21 +1,18 @@
 import pandas as pd
 import streamlit as st
-print("Libraries Imported Successfully")
 
-# GitHub raw CSV URL 
+# Load DataFrames from GitHub
 csv_url = "https://raw.githubusercontent.com/keanyaoha/Final_Project_WBS/main/emission_factor_formated.csv"
-
-# Load DataFrame from GitHub
-df = pd.read_csv(csv_url)
-
-# GitHub raw CSV URL 
 csv_url_1 = "https://raw.githubusercontent.com/keanyaoha/Final_Project_WBS/main/per_capita_filtered.csv"
 
-# Load DataFrame from GitHub
-df1 = pd.read_csv(csv_url_1)
+try:
+    df = pd.read_csv(csv_url)
+    df1 = pd.read_csv(csv_url_1)
+    st.success("Datasets Loaded Successfully")
+except Exception as e:
+    st.error(f"Error loading data: {e}")
 
-print("Dataset Loaded Successfully")
-
+# Function to format activity names
 def format_activity_name(activity):
     activity_mappings = {
         "Domestic flight": "How many km of Domestic Flights taken the last month",
@@ -46,88 +43,80 @@ def format_activity_name(activity):
     }
     return activity_mappings.get(activity, activity.replace("_", " ").capitalize())
 
-print("Formating Done Successfully")
-
-# Streamlit UI to collect name and gender
+# Streamlit UI
 st.title("Carbon Footprint Calculator")
 
-# Markdown
 st.markdown("""
-Show that you care about the Environment. Calculate your carbon footprint and get the ball rolling towards offsetting them. 
+Calculate your carbon footprint and take steps to offset it!
 """)
 
 # Display an image
 st.image('carbon_image.jpg', use_container_width=True)
 
-# Collect identity and mood
-name = st.text_input("Type your name:")
-mood = st.selectbox("Select your mood:", ["is Happy", "is slightly Happy"])
-print("Name and Mood Created Successfully")
+# User details
+name = st.text_input("Enter your name:")
+mood = st.selectbox("How do you feel today?", ["Happy 😊", "Neutral 😐", "Concerned 😟"])
 
-# Check if name and mood are entered
-if not name or not mood:
-    st.warning("Please enter your name and select your mood before proceeding.")
-else:
-    # Display message based on identity 
+if name and mood:
     st.write(f"Welcome {name}! Let's calculate your Carbon Footprint.")
+else:
+    st.warning("Please enter your name and select your mood before proceeding.")
 
-# Initialize session state for tracking which activity to show
+# Initialize session state
 if "current_activity_start" not in st.session_state:
-    st.session_state.current_activity_start = 0  # Start with the first activity
-    st.session_state.emission_values = {}  # Store input values for each activity
+    st.session_state.current_activity_start = 0
+    st.session_state.emission_values = {}
 
-# Number of activities to show per page
-activities_per_page = 25
-
-# Extract country names (all columns except 'Activity')
-country_list = df.columns[1:].tolist()
-
-# Select country
-country = st.selectbox("Select a country:", country_list)
-print("Country Selected Successfully")
+# Select a country
+if "Country" in df.columns:
+    country_list = df.columns[1:].tolist()
+    country = st.selectbox("Select a country:", country_list)
+else:
+    st.error("Error: 'Country' column missing in dataset!")
+    country = None
 
 if country:
-    # Get the current set of activities to show
     activities = df['Activity'].tolist()
-    activities_to_display = activities[st.session_state.current_activity_start: st.session_state.current_activity_start + activities_per_page]
+    activities_per_page = 25
+    start = st.session_state.current_activity_start
+    activities_to_display = activities[start: start + activities_per_page]
 
-    # Display the activities
     for activity in activities_to_display:
         activity_row = df[df['Activity'] == activity]
-        activity_description = format_activity_name(activity)
-        factor = activity_row[country].values[0]
-        
-        # Get user input for the current activity
-        user_input = st.number_input(f"{activity_description}", min_value=0, step=1, key=activity)
+        if not activity_row.empty:
+            factor = activity_row[country].values[0]
+            activity_description = format_activity_name(activity)
+            user_input = st.number_input(f"{activity_description}", min_value=0, step=1, key=activity)
+            st.session_state.emission_values[activity] = user_input * factor
 
-        # Store the input value for later use
-        st.session_state.emission_values[activity] = user_input * factor
+    # Pagination logic
+    if start + activities_per_page < len(activities):
+        if st.button("Next"):
+            st.session_state.current_activity_start += activities_per_page
 
-    # Show "Next" button if there are more activities to show
-    if st.session_state.current_activity_start + activities_per_page < len(activities):
-        next_button = st.button("Next")
-        if next_button:
-            st.session_state.current_activity_start += activities_per_page  # Move to the next set of activities
-
-    # If we have shown all activities, display the "Calculate" button
-    if st.session_state.current_activity_start + activities_per_page >= len(activities):
-        calculate_button = st.button("Calculate")
-        if calculate_button:
-            # Calculate total emission after clicking "Calculate"
+    # Calculate total emissions
+    if start + activities_per_page >= len(activities):
+        if st.button("Calculate"):
             total_emission = sum(st.session_state.emission_values.values())
-            st.subheader(f"Your Carbon Footprint is: {total_emission:.4f}")
+            st.subheader(f"Your Carbon Footprint: {total_emission:.4f} tons CO₂")
 
-            # Retrieve average emissions from df1 (table2)
-            country_avg_emission = df1.loc[df1["Country"] == country, "PerCapitaCO2"].values[0]
-            eud_avg_emission = df1.loc[df1["Country"] == "European Union (27)", "PerCapitaCO2"].values[0]
-            wd_avg_emission = df1.loc[df1["Country"] == "World", "PerCapitaCO2"].values[0]
+            # Fetch per capita emissions safely
+            def get_per_capita_emission(country_name):
+                match = df1.loc[df1["Country"] == country_name, "PerCapitaCO2"]
+                return match.iloc[0] if not match.empty else None
 
-    
+            country_avg = get_per_capita_emission(country)
+            eu_avg = get_per_capita_emission("European Union (27)")
+            world_avg = get_per_capita_emission("World")
+
+            # Display comparison if data exists
+            if country_avg is not None:
+                st.subheader(f"Avg emission for {country}: {country_avg:.4f} tons CO₂")
+            if eu_avg is not None:
+                st.subheader(f"Avg emission for EU (27): {eu_avg:.4f} tons CO₂")
+            if world_avg is not None:
+                st.subheader(f"Avg emission for World: {world_avg:.4f} tons CO₂")
 else:
     st.warning("Please select a country.")
-# Display additional outputs
-st.subheader(f"Average emission for {country}: {country_avg_emission:.4f}")
-st.subheader(f"Average emission for Eureopean Union (27): {eud_avg_emission:.4f}")
-st.subheader(f"Average emission for World: {wd_avg_emission:.4f}")
 
-print("Completed!")
+
