@@ -46,9 +46,7 @@ def format_activity_name(activity):
 # Streamlit UI
 st.title("Carbon Footprint Calculator")
 
-st.markdown("""
-Calculate your carbon footprint and take steps to offset it!
-""")
+st.markdown("Calculate your carbon footprint and compare it to national and global averages!")
 
 # Display an image
 st.image('carbon_image.jpg', use_container_width=True)
@@ -57,46 +55,33 @@ st.image('carbon_image.jpg', use_container_width=True)
 name = st.text_input("Enter your name:")
 mood = st.selectbox("How do you feel today?", ["Happy 😊", "Neutral 😐", "Concerned 😟"])
 
-if name and mood:
-    st.write(f"Welcome {name}! Let's calculate your Carbon Footprint.")
-else:
+if not name or not mood:
     st.warning("Please enter your name and select your mood before proceeding.")
-
-# Initialize session state
-if "current_activity_start" not in st.session_state:
-    st.session_state.current_activity_start = 0
-    st.session_state.emission_values = {}
-
-# Select a country
-if "Country" in df.columns:
-    country_list = df.columns[1:].tolist()
-    country = st.selectbox("Select a country:", country_list)
 else:
-    st.error("Error: 'Country' column missing in dataset!")
-    country = None
+    st.write(f"Welcome {name}! Let's calculate your Carbon Footprint.")
 
-if country:
-    activities = df['Activity'].tolist()
-    activities_per_page = 25
-    start = st.session_state.current_activity_start
-    activities_to_display = activities[start: start + activities_per_page]
+# Validate dataframe structure
+if "Activity" not in df.columns or "Country" not in df1.columns:
+    st.error("Error: Missing required columns in dataset!")
+else:
+    # Extract available countries
+    available_countries = [col for col in df.columns if col != "Activity"]
+    country = st.selectbox("Select a country:", available_countries)
 
-    for activity in activities_to_display:
-        activity_row = df[df['Activity'] == activity]
-        if not activity_row.empty:
-            factor = activity_row[country].values[0]
-            activity_description = format_activity_name(activity)
-            user_input = st.number_input(f"{activity_description}", min_value=0, step=1, key=activity)
+    if country:
+        # Initialize session state
+        if "emission_values" not in st.session_state:
+            st.session_state.emission_values = {}
+
+        # User input for activities
+        for activity in df["Activity"]:
+            factor = df.loc[df["Activity"] == activity, country].values[0]
+            activity_description = format_activity_name(activity)  # Use the formatting function
+            user_input = st.number_input(f"{activity_description}:", min_value=0.0, step=0.1, key=activity)
             st.session_state.emission_values[activity] = user_input * factor
 
-    # Pagination logic
-    if start + activities_per_page < len(activities):
-        if st.button("Next"):
-            st.session_state.current_activity_start += activities_per_page
-
-    # Calculate total emissions
-    if start + activities_per_page >= len(activities):
-        if st.button("Calculate"):
+        # Calculate total emissions
+        if st.button("Calculate Carbon Footprint"):
             total_emission = sum(st.session_state.emission_values.values())
             st.subheader(f"Your Carbon Footprint: {total_emission:.4f} tons CO₂")
 
@@ -116,7 +101,5 @@ if country:
                 st.subheader(f"Avg emission for EU (27): {eu_avg:.4f} tons CO₂")
             if world_avg is not None:
                 st.subheader(f"Avg emission for World: {world_avg:.4f} tons CO₂")
-else:
-    st.warning("Please select a country.")
-
-
+    else:
+        st.warning("Please select a country.")
