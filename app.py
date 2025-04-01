@@ -47,6 +47,11 @@ print("Formating Done Successfully")
 # Streamlit UI to collect name and gender
 st.title("Carbon Footprint Calculator")
 
+# Markdown
+st.markdown("""
+Show that you care about the Environment. Calculate your carbon footprint and get the ball rolling towards offsetting them. 
+""")
+
 # Display an image
 st.image('carbon_image.jpg', use_container_width=True)
 
