@@ -14,31 +14,31 @@ per_capita_World = emission_factor_formated.loc["per_capita", "World"]
 
 def format_activity_name(activity):
     activity_mappings = {
-        "Domestic flight": "How many KM of Domestic Flights taken per year",
-        "International flight": "How many KM of International Flights taken per year",
-        "km_diesel_local_passenger_train_traveled": "What distance in KM have you traveled by diesel-powered local passenger trains per year",
-        "km_diesel_long_distance_passenger_train_traveled": "What distance in KM have you traveled by diesel-powered long-distant passenger trains per year",
-        "km_electric_passenger_train_traveled": "What distance in KM have you traveled by electric-powered passenger trains per year",
-        "km_bus_traveled": "What distance in KM have you traveled by bus per year",
-        "km_petrol_car_traveled": "What distance in KM have you traveled by petrol-powered car per year",
-        "km_Motorcycle_traveled": "What distance in KM have you traveled by motorcycle per year",
-        "km_ev_scooter_traveled": "What distance in KM have you traveled by electric scooter per year",
-        "km_ev_car_traveled": "What distance in KM have you traveled by electric-powered car per year",
-        "diesel_car_traveled": "What distance in KM have you traveled by diesel-powered car per year",
-        "water_consumed": "How much water have you consumed in liters per year",
-        "electricity_used": "How much electricity have you used in kWh per year",
-        "beef_products_consumed": "How much beef have you consumed in Kg per year",
-        "beverages_consumed": "How much beverages have you consumed in liters per year",
-        "poultry_products_consumed": "How much poultry have you consumed in Kg per year",
-        "pork_products_consumed": "How much pork have you consumed in Kg per year",
-        "processed_rice_consumed": "How much processed rice have you consumed in Kg per year",
-        "sugar_consumed": "How much sugar have you consumed in Kg per year",
-        "vegetable_oils_fats_consumed": "How much vegetable oils and fats have you consumed in Kg per year",
-        "other_meat_products_consumed":  "How much other meat products have you consumed in Kg per year",
-        "dairy_products_consumed": "How much dairy products have you consumed in Kg per year",
-        "fish_products_consumed": "How much fish products have you consumed in Kg per year",
-        "other_food_products_consumed": "How much other food products have you consumed in Kg per year",
-        "hotel_stay": "How many nights have you stayed in a hotel per year"
+        "Domestic flight": "How many km of Domestic Flights taken the last month",
+        "International flight": "How many km of International Flights taken the last month",
+        "km_diesel_local_passenger_train_traveled": "How many km traveled by diesel-powered local passenger trains the last month",
+        "km_diesel_long_distance_passenger_train_traveled": "How many km traveled by diesel-powered long-distant passenger trains the last month",
+        "km_electric_passenger_train_traveled": "How many km traveled by electric-powered passenger trains the last month",
+        "km_bus_traveled": "How many km traveled by bus the last month",
+        "km_petrol_car_traveled": "How many km traveled by petrol-powered car the last month",
+        "km_Motorcycle_traveled": "How many km traveled by motorcycle the last month",
+        "km_ev_scooter_traveled": "How many km traveled by electric scooter the last month",
+        "km_ev_car_traveled": "How many km traveled by electric-powered car the last month",
+        "diesel_car_traveled": "How many km traveled by diesel-powered car the last month",
+        "water_consumed": "How much water consumed in liters the last month",
+        "electricity_used": "How much electricity used in kWh the last month",
+        "beef_products_consumed": "How much beef consumed in kg the last month",
+        "beverages_consumed": "How much beverages consumed in liters the last month",
+        "poultry_products_consumed": "How much poultry consumed in Kg the last month",
+        "pork_products_consumed": "How much pork have you consumed in kg the last month",
+        "processed_rice_consumed": "How much processed rice consumed in kg the last month",
+        "sugar_consumed": "How much sugar have you consumed in kg the last month",
+        "vegetable_oils_fats_consumed": "How much vegetable oils and fats consumed in kg the last month",
+        "other_meat_products_consumed":  "How much other meat products consumed in kg the last month",
+        "dairy_products_consumed": "How much dairy products consumed in kg the last month",
+        "fish_products_consumed": "How much fish products consumed in kg the last month",
+        "other_food_products_consumed": "How much other food products have you consumed in kg the last month",
+        "hotel_stay": "How many nights stayed in hotels the last month"
     }
     return activity_mappings.get(activity, activity.replace("_", " ").capitalize())
 
@@ -51,16 +51,16 @@ st.title("Carbon Footprint Calculator")
 st.image('carbon_image.jpg', use_container_width=True)
 
 # Collect identity and mood
-identity = st.text_input("Type your Champ:")
+name = st.text_input("Type your name:")
 mood = st.selectbox("Select your mood:", ["is Happy", "is slightly Happy"])
-print("identity and Mood Created Successfully")
+print("Name and Mood Created Successfully")
 
-# Check if mood are entered
-if not identity or not mood:
-    st.warning("Please enter your identity and select your mood before proceeding.")
+# Check if name and mood are entered
+if not name or not mood:
+    st.warning("Please enter your name and select your mood before proceeding.")
 else:
     # Display message based on identity 
-    st.write(f"Welcome {identity}! Let's calculate your Carbon Footprint.")
+    st.write(f"Welcome {name}! Let's calculate your Carbon Footprint.")
 
 # Initialize session state for tracking which activity to show
 if "current_activity_start" not in st.session_state:
@@ -68,7 +68,7 @@ if "current_activity_start" not in st.session_state:
     st.session_state.emission_values = {}  # Store input values for each activity
 
 # Number of activities to show per page
-activities_per_page = 5
+activities_per_page = 25
 
 # Extract country names (all columns except 'Activity')
 country_list = df.columns[1:].tolist()
