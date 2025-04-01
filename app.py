@@ -2,7 +2,13 @@ import pandas as pd
 import streamlit as st
 print("Libraries Imported Successfully")
 
-df = pd.read_csv("C:/Users/Lenovo/Desktop/emission_factor_formated.csv")
+
+# GitHub raw CSV URL (replace with your actual link)
+csv_url = "https://raw.githubusercontent.com/keanyaoha/Final_Project_WBS/main/emission_factor_formated.csv"
+
+# Load DataFrame from GitHub
+df = pd.read_csv(csv_url)
+
 
 print("Dataset Loaded Successfully")
 
